@@ -1,0 +1,34 @@
+[package]
+name = "loony-files"
+version = "0.1.0"
+authors = ["loony contributors <team@loony.rs>"]
+description = "Static files support for loony web."
+readme = "README.md"
+keywords = ["loony", "http", "async", "futures"]
+homepage = "https://loony.rs"
+repository = "https://github.com/loony-rs/loony-extras.git"
+documentation = "https://docs.rs/loony-files/"
+categories = ["asynchronous", "web-programming::http-server"]
+license = "MIT"
+edition = "2018"
+workspace = ".."
+
+[lib]
+name = "loony_files"
+path = "src/lib.rs"
+
+[dependencies]
+loony = { git="https://github.com/sankar-boro/loony" }
+
+bitflags = "1.2"
+futures = "0.3"
+derive_more = "0.99.11"
+hyperx = "1.0.0"
+log = "0.4"
+mime = "0.3"
+mime_guess = "2.0.1"
+percent-encoding = "2.1"
+v_htmlescape = "0.13"
+
+[dev-dependencies]
+loony = { git="https://github.com/sankar-boro/loony", features = ["openssl", "compress"] }

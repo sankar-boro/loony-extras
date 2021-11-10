@@ -1,0 +1,8 @@
+[workspace]
+members = [
+  "loony-cors",
+  "loony-files",
+  "loony-identity",
+  "loony-multipart",
+  "loony-session",
+]
