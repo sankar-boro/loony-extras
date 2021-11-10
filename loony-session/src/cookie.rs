@@ -166,35 +166,35 @@ impl<Err> CookieSessionInner<Err> {
     }
 }
 
-// Use cookies for session storage.
+/// Use cookies for session storage.
 //
-// `CookieSession` creates sessions which are limited to storing
-// fewer than 4000 bytes of data (as the payload must fit into a single
-// cookie). An Internal Server Error is generated if the session contains more
-// than 4000 bytes.
+/// `CookieSession` creates sessions which are limited to storing
+/// fewer than 4000 bytes of data (as the payload must fit into a single
+/// cookie). An Internal Server Error is generated if the session contains more
+/// than 4000 bytes.
 //
-// A cookie may have a security policy of *signed* or *private*. Each has a
-// respective `CookieSessionBackend` constructor.
+/// A cookie may have a security policy of *signed* or *private*. Each has a
+/// respective `CookieSessionBackend` constructor.
 //
-// A *signed* cookie is stored on the client as plailoonyt alongside
-// a signature such that the cookie may be viewed but not modified by the
-// client.
+/// A *signed* cookie is stored on the client as plailoonyt alongside
+/// a signature such that the cookie may be viewed but not modified by the
+/// client.
 //
-// A *private* cookie is stored on the client as encrypted text
-// such that it may neither be viewed nor modified by the client.
+/// A *private* cookie is stored on the client as encrypted text
+/// such that it may neither be viewed nor modified by the client.
 //
-// The constructors take a key as an argument.
-// This is the private key for cookie session - when this value is changed,
-// all session data is lost. The constructors will panic if the key is less
-// than 32 bytes in length.
+/// The constructors take a key as an argument.
+/// This is the private key for cookie session - when this value is changed,
+/// all session data is lost. The constructors will panic if the key is less
+/// than 32 bytes in length.
 //
-// The backend relies on `cookie` crate to create and read cookies.
-// By default all cookies are percent encoded, but certain symbols may
-// cause troubles when reading cookie, if they are not properly percent encoded.
+/// The backend relies on `cookie` crate to create and read cookies.
+/// By default all cookies are percent encoded, but certain symbols may
+/// cause troubles when reading cookie, if they are not properly percent encoded.
 //
-// # Example
+/// # Example
 //
-// ```rust
+/// ```rust
 // use loony_session::CookieSession;
 // use loony::web::{self, App, HttpResponse, HttpServer};
 //
@@ -206,7 +206,6 @@ impl<Err> CookieSessionInner<Err> {
 //         .secure(true))
 //     .service(web::resource("/").to(|| async { HttpResponse::Ok() }));
 // ```
-// TODO:
 pub struct CookieSession<Err>(Rc<CookieSessionInner<Err>>);
 
 impl<Err> CookieSession<Err> {
@@ -300,10 +299,10 @@ where
     // type InitError = ();
     // type Transform = CookieSessionMiddleware<S, Err>;
     // type Future = Ready<Result<Self::Transform, Self::InitError>>;
-    type Service = Ready<Result<CookieSessionMiddleware<S, Err>, ()>>;
+    type Service = CookieSessionMiddleware<S, Err>;
 
     fn new_transform(&self, service: S) -> Self::Service {
-        ok(CookieSessionMiddleware { service, inner: self.0.clone() })
+        CookieSessionMiddleware { service, inner: self.0.clone() }
     }
 }
 
@@ -387,130 +386,130 @@ mod tests {
     use loony::util::Bytes;
     use loony::web::{self, test, App};
 
-    // #[loony::test]
-    // async fn cookie_session() {
-    //     let app = test::init_service(
-    //         App::new().wrap(CookieSession::signed(&[0; 32]).secure(false)).service(
-    //             web::resource("/").to(|ses: Session| async move {
-    //                 let _ = ses.set("counter", 100);
-    //                 "test"
-    //             }),
-    //         ),
-    //     )
-    //     .await;
+    #[loony::test]
+    async fn cookie_session() {
+        let app = test::init_service(
+            App::new().wrap(CookieSession::signed(&[0; 32]).secure(false)).service(
+                web::resource("/").to(|ses: Session| async move {
+                    let _ = ses.set("counter", 100);
+                    "test"
+                }),
+            ),
+        )
+        .await;
 
-    //     let request = test::TestRequest::get().to_request();
-    //     let response = app.call(request).await.unwrap();
-    //     assert!(response.response().cookies().find(|c| c.name() == "loony-session").is_some());
-    // }
+        let request = test::TestRequest::get().to_request();
+        let response = app.call(request).await.unwrap();
+        assert!(response.response().cookies().find(|c| c.name() == "loony-session").is_some());
+    }
 
-    // #[loony::test]
-    // async fn private_cookie() {
-    //     let app = test::init_service(
-    //         App::new().wrap(CookieSession::private(&[0; 32]).secure(false)).service(
-    //             web::resource("/").to(|ses: Session| async move {
-    //                 let _ = ses.set("counter", 100);
-    //                 "test"
-    //             }),
-    //         ),
-    //     )
-    //     .await;
+    #[loony::test]
+    async fn private_cookie() {
+        let app = test::init_service(
+            App::new().wrap(CookieSession::private(&[0; 32]).secure(false)).service(
+                web::resource("/").to(|ses: Session| async move {
+                    let _ = ses.set("counter", 100);
+                    "test"
+                }),
+            ),
+        )
+        .await;
 
-    //     let request = test::TestRequest::get().to_request();
-    //     let response = app.call(request).await.unwrap();
-    //     assert!(response.response().cookies().find(|c| c.name() == "loony-session").is_some());
-    // }
+        let request = test::TestRequest::get().to_request();
+        let response = app.call(request).await.unwrap();
+        assert!(response.response().cookies().find(|c| c.name() == "loony-session").is_some());
+    }
 
-    // #[loony::test]
-    // async fn cookie_session_extractor() {
-    //     let app = test::init_service(
-    //         App::new().wrap(CookieSession::signed(&[0; 32]).secure(false)).service(
-    //             web::resource("/").to(|ses: Session| async move {
-    //                 let _ = ses.set("counter", 100);
-    //                 "test"
-    //             }),
-    //         ),
-    //     )
-    //     .await;
+    #[loony::test]
+    async fn cookie_session_extractor() {
+        let app = test::init_service(
+            App::new().wrap(CookieSession::signed(&[0; 32]).secure(false)).service(
+                web::resource("/").to(|ses: Session| async move {
+                    let _ = ses.set("counter", 100);
+                    "test"
+                }),
+            ),
+        )
+        .await;
 
-    //     let request = test::TestRequest::get().to_request();
-    //     let response = app.call(request).await.unwrap();
-    //     assert!(response.response().cookies().find(|c| c.name() == "loony-session").is_some());
-    // }
+        let request = test::TestRequest::get().to_request();
+        let response = app.call(request).await.unwrap();
+        assert!(response.response().cookies().find(|c| c.name() == "loony-session").is_some());
+    }
 
-    // #[loony::test]
-    // async fn basics() {
-    //     let app = test::init_service(
-    //         App::new()
-    //             .wrap(
-    //                 CookieSession::signed(&[0; 32])
-    //                     .path("/test/")
-    //                     .name("loony-test")
-    //                     .domain("localhost")
-    //                     .http_only(true)
-    //                     .same_site(SameSite::Lax)
-    //                     .max_age(100),
-    //             )
-    //             .service(web::resource("/").to(|ses: Session| async move {
-    //                 let _ = ses.set("counter", 100);
-    //                 "test"
-    //             }))
-    //             .service(web::resource("/test/").to(|ses: Session| async move {
-    //                 let val: usize = ses.get("counter").unwrap().unwrap();
-    //                 format!("counter: {}", val)
-    //             })),
-    //     )
-    //     .await;
+    #[loony::test]
+    async fn basics() {
+        let app = test::init_service(
+            App::new()
+                .wrap(
+                    CookieSession::signed(&[0; 32])
+                        .path("/test/")
+                        .name("loony-test")
+                        .domain("localhost")
+                        .http_only(true)
+                        .same_site(SameSite::Lax)
+                        .max_age(100),
+                )
+                .service(web::resource("/").to(|ses: Session| async move {
+                    let _ = ses.set("counter", 100);
+                    "test"
+                }))
+                .service(web::resource("/test/").to(|ses: Session| async move {
+                    let val: usize = ses.get("counter").unwrap().unwrap();
+                    format!("counter: {}", val)
+                })),
+        )
+        .await;
 
-    //     let request = test::TestRequest::get().to_request();
-    //     let response = app.call(request).await.unwrap();
-    //     let cookie =
-    //         response.response().cookies().find(|c| c.name() == "loony-test").unwrap().clone();
-    //     assert_eq!(cookie.path().unwrap(), "/test/");
+        let request = test::TestRequest::get().to_request();
+        let response = app.call(request).await.unwrap();
+        let cookie =
+            response.response().cookies().find(|c| c.name() == "loony-test").unwrap().clone();
+        assert_eq!(cookie.path().unwrap(), "/test/");
 
-    //     let request = test::TestRequest::with_uri("/test/").cookie(cookie).to_request();
-    //     let body = test::read_response(&app, request).await;
-    //     assert_eq!(body, Bytes::from_static(b"counter: 100"));
-    // }
+        let request = test::TestRequest::with_uri("/test/").cookie(cookie).to_request();
+        let body = test::read_response(&app, request).await;
+        assert_eq!(body, Bytes::from_static(b"counter: 100"));
+    }
 
-    // #[loony::test]
-    // async fn prolong_expiration() {
-    //     let app = test::init_service(
-    //         App::new()
-    //             .wrap(CookieSession::signed(&[0; 32]).secure(false).expires_in(60))
-    //             .service(web::resource("/").to(|ses: Session| async move {
-    //                 let _ = ses.set("counter", 100);
-    //                 "test"
-    //             }))
-    //             .service(web::resource("/test/").to(|| async move { "no-changes-in-session" })),
-    //     )
-    //     .await;
+    #[loony::test]
+    async fn prolong_expiration() {
+        let app = test::init_service(
+            App::new()
+                .wrap(CookieSession::signed(&[0; 32]).secure(false).expires_in(60))
+                .service(web::resource("/").to(|ses: Session| async move {
+                    let _ = ses.set("counter", 100);
+                    "test"
+                }))
+                .service(web::resource("/test/").to(|| async move { "no-changes-in-session" })),
+        )
+        .await;
 
-    //     let request = test::TestRequest::get().to_request();
-    //     let response = app.call(request).await.unwrap();
-    //     let expires_1 = response
-    //         .response()
-    //         .cookies()
-    //         .find(|c| c.name() == "loony-session")
-    //         .expect("Cookie is set")
-    //         .expires()
-    //         .expect("Expiration is set");
+        let request = test::TestRequest::get().to_request();
+        let response = app.call(request).await.unwrap();
+        let expires_1 = response
+            .response()
+            .cookies()
+            .find(|c| c.name() == "loony-session")
+            .expect("Cookie is set")
+            .expires()
+            .expect("Expiration is set");
 
-    //     loony::rt::time_driver::sleep(std::time::Duration::from_secs(1)).await;
+        loony::rt::time_driver::sleep(std::time::Duration::from_secs(1)).await;
 
-    //     let request = test::TestRequest::with_uri("/test/").to_request();
-    //     let response = app.call(request).await.unwrap();
-    //     let expires_2 = response
-    //         .response()
-    //         .cookies()
-    //         .find(|c| c.name() == "loony-session")
-    //         .expect("Cookie is set")
-    //         .expires()
-    //         .expect("Expiration is set");
+        let request = test::TestRequest::with_uri("/test/").to_request();
+        let response = app.call(request).await.unwrap();
+        let expires_2 = response
+            .response()
+            .cookies()
+            .find(|c| c.name() == "loony-session")
+            .expect("Cookie is set")
+            .expires()
+            .expect("Expiration is set");
 
-    //     assert!(
-    //         expires_2.datetime().unwrap() - expires_1.datetime().unwrap()
-    //             >= Duration::seconds(1)
-    //     );
-    // }
+        assert!(
+            expires_2.datetime().unwrap() - expires_1.datetime().unwrap()
+                >= Duration::seconds(1)
+        );
+    }
 }

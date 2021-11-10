@@ -1,47 +1,46 @@
-// User sessions.
+//! User sessions.
 //
-// Actix provides a general solution for session management. Session
-// middlewares could provide different implementations which could
-// be accessed via general session api.
+//! Actix provides a general solution for session management. Session
+//! middlewares could provide different implementations which could
+//! be accessed via general session api.
 //
-// By default, only cookie session backend is implemented. Other
-// backend implementations can be added.
+//! By default, only cookie session backend is implemented. Other
+//! backend implementations can be added.
 //
-// In general, you insert a *session* middleware and initialize it
-// , such as a `CookieSessionBackend`. To access session data,
-// [*Session*](struct.Session.html) extractor must be used. Session
-// extractor allows us to get or set session data.
+//! In general, you insert a *session* middleware and initialize it
+//! , such as a `CookieSessionBackend`. To access session data,
+//! [*Session*](struct.Session.html) extractor must be used. Session
+//! extractor allows us to get or set session data.
 //
-// ```rust,no_run
-// use loony::web::{self, App, HttpResponse, Error};
-// use loony_session::{Session, CookieSession};
+//! ```rust,no_run
+//! use loony::web::{self, App, HttpResponse, Error};
+//! use loony_session::{Session, CookieSession};
 //
-// fn index(session: Session) -> Result<&'static str, Error> {
-//     // access session data
-//     if let Some(count) = session.get::<i32>("counter")? {
-//         println!("SESSION value: {}", count);
-//         session.set("counter", count+1)?;
-//     } else {
-//         session.set("counter", 1)?;
-//     }
+//! fn index(session: Session) -> Result<&'static str, Error> {
+//!     // access session data
+//!     if let Some(count) = session.get::<i32>("counter")? {
+//!         println!("SESSION value: {}", count);
+//!         session.set("counter", count+1)?;
+//!     } else {
+//!         session.set("counter", 1)?;
+//!     }
 //
-//     Ok("Welcome!")
-// }
+//!     Ok("Welcome!")
+//! }
 //
-// #[loony::main]
-// async fn main() -> std::io::Result<()> {
-//     web::server(
-//         || App::new().wrap(
-//               CookieSession::signed(&[0; 32]) // <- create cookie based session middleware
-//                     .secure(false)
-//              )
-//             .service(web::resource("/").to(|| async { HttpResponse::Ok() })))
-//         .bind("127.0.0.1:59880")?
-//         .run()
-//         .await
-// }
-// ```
-// TODO:
+//! #[loony::main]
+//! async fn main() -> std::io::Result<()> {
+//!     web::server(
+//!         || App::new().wrap(
+//!               CookieSession::signed(&[0; 32]) // <- create cookie based session middleware
+//!                     .secure(false)
+//!              )
+//!             .service(web::resource("/").to(|| async { HttpResponse::Ok() })))
+//!         .bind("127.0.0.1:59880")?
+//!         .run()
+//!         .await
+//! }
+//! ```
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::Infallible;

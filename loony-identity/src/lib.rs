@@ -1,40 +1,40 @@
-// Request identity service for loony applications.
-//
-// [**IdentityService**](struct.IdentityService.html) middleware can be
-// used with different policies types to store identity information.
-//
-// By default, only cookie identity policy is implemented. Other backend
-// implementations can be added separately.
-//
-// [**CookieIdentityPolicy**](struct.CookieIdentityPolicy.html)
-// uses cookies as identity storage.
-//
-// To access current request identity
-// [**Identity**](struct.Identity.html) extractor should be used.
-//
-// ```rust
-// use loony::web;
-// use loony_identity::{Identity, CookieIdentityPolicy, IdentityService};
-//
-// async fn index(id: Identity) -> String {
-//     // access request identity
-//     if let Some(id) = id.identity() {
-//         format!("Welcome! {}", id)
-//     } else {
-//         "Welcome Anonymous!".to_owned()
-//     }
-// }
-//
-// async fn login(id: Identity) -> web::HttpResponse {
-//     id.remember("User1".to_owned()); // <- remember identity
-//     web::HttpResponse::Ok().finish()
-// }
-//
-// async fn logout(id: Identity) -> web::HttpResponse {
-//     id.forget();                      // <- remove identity
-//     web::HttpResponse::Ok().finish()
-// }
-//
+//! Request identity service for loony applications.
+//!
+//! [**IdentityService**](struct.IdentityService.html) middleware can be
+//! used with different policies types to store identity information.
+//!
+//! By default, only cookie identity policy is implemented. Other backend
+//! implementations can be added separately.
+//!
+//! [**CookieIdentityPolicy**](struct.CookieIdentityPolicy.html)
+//! uses cookies as identity storage.
+//!
+//! To access current request identity
+//! [**Identity**](struct.Identity.html) extractor should be used.
+//!
+//! ```rust
+//! use loony::web;
+//! use loony_identity::{Identity, CookieIdentityPolicy, IdentityService};
+//!
+//! async fn index(id: Identity) -> String {
+//!     // access request identity
+//!     if let Some(id) = id.identity() {
+//!         format!("Welcome! {}", id)
+//!     } else {
+//!         "Welcome Anonymous!".to_owned()
+//!     }
+//! }
+//!
+//! async fn login(id: Identity) -> web::HttpResponse {
+//!     id.remember("User1".to_owned()); // <- remember identity
+//!     web::HttpResponse::Ok().finish()
+//! }
+//!
+//! async fn logout(id: Identity) -> web::HttpResponse {
+//!     id.forget();                      // <- remove identity
+//!     web::HttpResponse::Ok().finish()
+//! }
+//!
 // let app = web::App::new().wrap(IdentityService::new(
 //     // <- create identity middleware
 //     CookieIdentityPolicy::new(&[0; 32])    // <- create cookie identity policy
@@ -44,7 +44,6 @@
 //     .service(web::resource("/login.html").to(login))
 //     .service(web::resource("/logout.html").to(logout));
 // ```
-// TODO:
 
 use std::convert::Infallible;
 use std::future::Future;
@@ -67,32 +66,32 @@ use loony::util::Extensions;
 use loony::web::{WebRequest, WebResponse};
 use loony::web::{DefaultError, ErrorRenderer, FromRequest, HttpRequest, WebResponseError};
 
-/// The extractor type to obtain your identity from a request.
-///
-/// ```rust
-/// use loony::web::{self, Error};
-/// use loony_identity::Identity;
-///
-/// fn index(id: Identity) -> Result<String, web::Error> {
-///     // access request identity
-///     if let Some(id) = id.identity() {
-///         Ok(format!("Welcome! {}", id))
-///     } else {
-///         Ok("Welcome Anonymous!".to_owned())
-///     }
-/// }
-///
-/// fn login(id: Identity) -> web::HttpResponse {
-///     id.remember("User1".to_owned()); // <- remember identity
-///     web::HttpResponse::Ok().finish()
-/// }
-///
-/// fn logout(id: Identity) -> web::HttpResponse {
-///     id.forget(); // <- remove identity
-///     web::HttpResponse::Ok().finish()
-/// }
-/// # fn main() {}
-/// ```
+// The extractor type to obtain your identity from a request.
+//
+// ```rust
+// use loony::web::{self, Error};
+// use loony_identity::Identity;
+//
+// fn index(id: Identity) -> Result<String, web::Error> {
+//     // access request identity
+//     if let Some(id) = id.identity() {
+//         Ok(format!("Welcome! {}", id))
+//     } else {
+//         Ok("Welcome Anonymous!".to_owned())
+//     }
+// }
+//
+// fn login(id: Identity) -> web::HttpResponse {
+//     id.remember("User1".to_owned()); // <- remember identity
+//     web::HttpResponse::Ok().finish()
+// }
+//
+// fn logout(id: Identity) -> web::HttpResponse {
+//     id.forget(); // <- remove identity
+//     web::HttpResponse::Ok().finish()
+// }
+// # fn main() {}
+// ```
 #[derive(Clone)]
 pub struct Identity(HttpRequest);
 
@@ -151,21 +150,21 @@ where
     }
 }
 
-/// Extractor implementation for Identity type.
-///
-/// ```rust
-/// use loony_identity::Identity;
-///
-/// fn index(id: Identity) -> String {
-///     // access request identity
-///     if let Some(id) = id.identity() {
-///         format!("Welcome! {}", id)
-///     } else {
-///         "Welcome Anonymous!".to_owned()
-///     }
-/// }
-/// # fn main() {}
-/// ```
+// Extractor implementation for Identity type.
+//
+// ```rust
+// use loony_identity::Identity;
+//
+// fn index(id: Identity) -> String {
+//     // access request identity
+//     if let Some(id) = id.identity() {
+//         format!("Welcome! {}", id)
+//     } else {
+//         "Welcome Anonymous!".to_owned()
+//     }
+// }
+// # fn main() {}
+// ```
 impl<Err: ErrorRenderer> FromRequest<Err> for Identity {
     type Error = Infallible;
     type Future = Ready<Result<Identity, Infallible>>;
@@ -212,7 +211,6 @@ pub trait IdentityPolicy<Err>: Sized + 'static {
 //           .secure(false),
 // ));
 // ```
-// TODO:
 pub struct IdentityService<T, Err> {
     backend: Rc<T>,
     _t: PhantomData<Err>,
@@ -240,14 +238,14 @@ where
     // type InitError = ();
     // type Transform = IdentityServiceMiddleware<S, T, Err>;
     // type Future = Ready<Result<Self::Transform, Self::InitError>>;
-    type Service = Ready<Result<IdentityServiceMiddleware<S, T, Err>, ()>>;
+    type Service = IdentityServiceMiddleware<S, T, Err>;
 
     fn new_transform(&self, service: S) -> Self::Service {
-        ok(IdentityServiceMiddleware {
+        IdentityServiceMiddleware {
             backend: self.backend.clone(),
             service: Rc::new(service),
             _t: PhantomData,
-        })
+        }
     }
 }
 
@@ -476,7 +474,6 @@ impl<Err: ErrorRenderer> CookieIdentityInner<Err> {
 //            .secure(true),
 // ));
 // ```
-// TODO:
 pub struct CookieIdentityPolicy<Err>(Rc<CookieIdentityInner<Err>>);
 
 #[derive(Debug, Display, From)]
@@ -624,145 +621,145 @@ mod tests {
     const COOKIE_NAME: &'static str = "loony_auth";
     const COOKIE_LOGIN: &'static str = "test";
 
-    // #[loony::test]
-    // async fn test_identity() {
-    //     let mut srv = test::init_service(
-    //         App::new()
-    //             .wrap(IdentityService::new(
-    //                 CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
-    //                     .domain("www.rust-lang.org")
-    //                     .name(COOKIE_NAME)
-    //                     .path("/")
-    //                     .secure(true),
-    //             ))
-    //             .service(web::resource("/index").to(|id: Identity| async move {
-    //                 if id.identity().is_some() {
-    //                     HttpResponse::Created()
-    //                 } else {
-    //                     HttpResponse::Ok()
-    //                 }
-    //             }))
-    //             .service(web::resource("/login").to(|id: Identity| async move {
-    //                 id.remember(COOKIE_LOGIN.to_string());
-    //                 HttpResponse::Ok()
-    //             }))
-    //             .service(web::resource("/logout").to(|id: Identity| async move {
-    //                 if id.identity().is_some() {
-    //                     id.forget();
-    //                     HttpResponse::Ok()
-    //                 } else {
-    //                     HttpResponse::BadRequest()
-    //                 }
-    //             })),
-    //     )
-    //     .await;
-    //     let resp =
-    //         test::call_service(&mut srv, TestRequest::with_uri("/index").to_request()).await;
-    //     assert_eq!(resp.status(), StatusCode::OK);
+    #[loony::test]
+    async fn test_identity() {
+        let mut srv = test::init_service(
+            App::new()
+                .wrap(IdentityService::new(
+                    CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
+                        .domain("www.rust-lang.org")
+                        .name(COOKIE_NAME)
+                        .path("/")
+                        .secure(true),
+                ))
+                .service(web::resource("/index").to(|id: Identity| async move {
+                    if id.identity().is_some() {
+                        HttpResponse::Created()
+                    } else {
+                        HttpResponse::Ok()
+                    }
+                }))
+                .service(web::resource("/login").to(|id: Identity| async move {
+                    id.remember(COOKIE_LOGIN.to_string());
+                    HttpResponse::Ok()
+                }))
+                .service(web::resource("/logout").to(|id: Identity| async move {
+                    if id.identity().is_some() {
+                        id.forget();
+                        HttpResponse::Ok()
+                    } else {
+                        HttpResponse::BadRequest()
+                    }
+                })),
+        )
+        .await;
+        let resp =
+            test::call_service(&mut srv, TestRequest::with_uri("/index").to_request()).await;
+        assert_eq!(resp.status(), StatusCode::OK);
 
-    //     let resp =
-    //         test::call_service(&mut srv, TestRequest::with_uri("/login").to_request()).await;
-    //     assert_eq!(resp.status(), StatusCode::OK);
-    //     let c = resp.response().cookies().next().unwrap().to_owned();
+        let resp =
+            test::call_service(&mut srv, TestRequest::with_uri("/login").to_request()).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        let c = resp.response().cookies().next().unwrap().to_owned();
 
-    //     let resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/index").cookie(c.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_eq!(resp.status(), StatusCode::CREATED);
+        let resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/index").cookie(c.clone()).to_request(),
+        )
+        .await;
+        assert_eq!(resp.status(), StatusCode::CREATED);
 
-    //     let resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/logout").cookie(c.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_eq!(resp.status(), StatusCode::OK);
-    //     assert!(resp.headers().contains_key(header::SET_COOKIE))
-    // }
+        let resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/logout").cookie(c.clone()).to_request(),
+        )
+        .await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        assert!(resp.headers().contains_key(header::SET_COOKIE))
+    }
 
-    // #[loony::test]
-    // async fn test_identity_max_age_time() {
-    //     let duration = Duration::days(1);
-    //     let mut srv = test::init_service(
-    //         App::new()
-    //             .wrap(IdentityService::new(
-    //                 CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
-    //                     .domain("www.rust-lang.org")
-    //                     .name(COOKIE_NAME)
-    //                     .path("/")
-    //                     .max_age_time(duration)
-    //                     .secure(true),
-    //             ))
-    //             .service(web::resource("/login").to(|id: Identity| async move {
-    //                 id.remember("test".to_string());
-    //                 HttpResponse::Ok()
-    //             })),
-    //     )
-    //     .await;
-    //     let resp =
-    //         test::call_service(&mut srv, TestRequest::with_uri("/login").to_request()).await;
-    //     assert_eq!(resp.status(), StatusCode::OK);
-    //     assert!(resp.headers().contains_key(header::SET_COOKIE));
-    //     let c = resp.response().cookies().next().unwrap().to_owned();
-    //     assert_eq!(duration, c.max_age().unwrap());
-    // }
+    #[loony::test]
+    async fn test_identity_max_age_time() {
+        let duration = Duration::days(1);
+        let mut srv = test::init_service(
+            App::new()
+                .wrap(IdentityService::new(
+                    CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
+                        .domain("www.rust-lang.org")
+                        .name(COOKIE_NAME)
+                        .path("/")
+                        .max_age_time(duration)
+                        .secure(true),
+                ))
+                .service(web::resource("/login").to(|id: Identity| async move {
+                    id.remember("test".to_string());
+                    HttpResponse::Ok()
+                })),
+        )
+        .await;
+        let resp =
+            test::call_service(&mut srv, TestRequest::with_uri("/login").to_request()).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        assert!(resp.headers().contains_key(header::SET_COOKIE));
+        let c = resp.response().cookies().next().unwrap().to_owned();
+        assert_eq!(duration, c.max_age().unwrap());
+    }
 
-    // #[loony::test]
-    // async fn test_identity_max_age() {
-    //     let seconds = 60;
-    //     let mut srv = test::init_service(
-    //         App::new()
-    //             .wrap(IdentityService::new(
-    //                 CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
-    //                     .domain("www.rust-lang.org")
-    //                     .name(COOKIE_NAME)
-    //                     .path("/")
-    //                     .max_age(seconds)
-    //                     .secure(true),
-    //             ))
-    //             .service(web::resource("/login").to(|id: Identity| async move {
-    //                 id.remember("test".to_string());
-    //                 HttpResponse::Ok()
-    //             })),
-    //     )
-    //     .await;
-    //     let resp =
-    //         test::call_service(&mut srv, TestRequest::with_uri("/login").to_request()).await;
-    //     assert_eq!(resp.status(), StatusCode::OK);
-    //     assert!(resp.headers().contains_key(header::SET_COOKIE));
-    //     let c = resp.response().cookies().next().unwrap().to_owned();
-    //     assert_eq!(Duration::seconds(seconds as i64), c.max_age().unwrap());
-    // }
+    #[loony::test]
+    async fn test_identity_max_age() {
+        let seconds = 60;
+        let mut srv = test::init_service(
+            App::new()
+                .wrap(IdentityService::new(
+                    CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
+                        .domain("www.rust-lang.org")
+                        .name(COOKIE_NAME)
+                        .path("/")
+                        .max_age(seconds)
+                        .secure(true),
+                ))
+                .service(web::resource("/login").to(|id: Identity| async move {
+                    id.remember("test".to_string());
+                    HttpResponse::Ok()
+                })),
+        )
+        .await;
+        let resp =
+            test::call_service(&mut srv, TestRequest::with_uri("/login").to_request()).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        assert!(resp.headers().contains_key(header::SET_COOKIE));
+        let c = resp.response().cookies().next().unwrap().to_owned();
+        assert_eq!(Duration::seconds(seconds as i64), c.max_age().unwrap());
+    }
 
-    // async fn create_identity_server<
-    //     F: Fn(CookieIdentityPolicy<DefaultError>) -> CookieIdentityPolicy<DefaultError>
-    //         + Sync
-    //         + Send
-    //         + Clone
-    //         + 'static,
-    // >(
-    //     f: F,
-    // ) -> impl loony::service::Service<
-    //     Request = loony::http::Request,
-    //     Response = WebResponse,
-    //     Error = Error,
-    // > {
-    //     test::init_service(
-    //         App::new()
-    //             .wrap(IdentityService::new(f(CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
-    //                 .secure(false)
-    //                 .name(COOKIE_NAME))))
-    //             .service(web::resource("/").to(|id: Identity| async move {
-    //                 let identity = id.identity();
-    //                 if identity.is_none() {
-    //                     id.remember(COOKIE_LOGIN.to_string())
-    //                 }
-    //                 web::types::Json(identity)
-    //             })),
-    //     )
-    //     .await
-    // }
+    async fn create_identity_server<
+        F: Fn(CookieIdentityPolicy<DefaultError>) -> CookieIdentityPolicy<DefaultError>
+            + Sync
+            + Send
+            + Clone
+            + 'static,
+    >(
+        f: F,
+    ) -> impl loony::service::Service<
+        Request = loony::http::Request,
+        Response = WebResponse,
+        Error = Error,
+    > {
+        test::init_service(
+            App::new()
+                .wrap(IdentityService::new(f(CookieIdentityPolicy::new(&COOKIE_KEY_MASTER)
+                    .secure(false)
+                    .name(COOKIE_NAME))))
+                .service(web::resource("/").to(|id: Identity| async move {
+                    let identity = id.identity();
+                    if identity.is_none() {
+                        id.remember(COOKIE_LOGIN.to_string())
+                    }
+                    web::types::Json(identity)
+                })),
+        )
+        .await
+    }
 
     fn legacy_login_cookie(identity: &'static str) -> Cookie<'static> {
         let mut jar = CookieJar::new();
@@ -860,173 +857,173 @@ mod tests {
         assert!(cookies.get(COOKIE_NAME).is_none());
     }
 
-    // #[loony::test]
-    // async fn test_identity_legacy_cookie_is_set() {
-    //     let mut srv = create_identity_server(|c| c).await;
-    //     let mut resp =
-    //         test::call_service(&mut srv, TestRequest::with_uri("/").to_request()).await;
-    //     assert_legacy_login_cookie(&mut resp, COOKIE_LOGIN);
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_legacy_cookie_is_set() {
+        let mut srv = create_identity_server(|c| c).await;
+        let mut resp =
+            test::call_service(&mut srv, TestRequest::with_uri("/").to_request()).await;
+        assert_legacy_login_cookie(&mut resp, COOKIE_LOGIN);
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_legacy_cookie_works() {
-    //     let mut srv = create_identity_server(|c| c).await;
-    //     let cookie = legacy_login_cookie(COOKIE_LOGIN);
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_no_login_cookie(&mut resp);
-    //     assert_logged_in(resp, Some(COOKIE_LOGIN)).await;
-    // }
+    #[loony::test]
+    async fn test_identity_legacy_cookie_works() {
+        let mut srv = create_identity_server(|c| c).await;
+        let cookie = legacy_login_cookie(COOKIE_LOGIN);
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_no_login_cookie(&mut resp);
+        assert_logged_in(resp, Some(COOKIE_LOGIN)).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_legacy_cookie_rejected_if_visit_timestamp_needed() {
-    //     let mut srv = create_identity_server(|c| c.visit_deadline(Duration::days(90))).await;
-    //     let cookie = legacy_login_cookie(COOKIE_LOGIN);
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::NoTimestamp,
-    //         VisitTimeStampCheck::NewTimestamp,
-    //     );
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_legacy_cookie_rejected_if_visit_timestamp_needed() {
+        let mut srv = create_identity_server(|c| c.visit_deadline(Duration::days(90))).await;
+        let cookie = legacy_login_cookie(COOKIE_LOGIN);
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::NoTimestamp,
+            VisitTimeStampCheck::NewTimestamp,
+        );
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_legacy_cookie_rejected_if_login_timestamp_needed() {
-    //     let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
-    //     let cookie = legacy_login_cookie(COOKIE_LOGIN);
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::NewTimestamp,
-    //         VisitTimeStampCheck::NoTimestamp,
-    //     );
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_legacy_cookie_rejected_if_login_timestamp_needed() {
+        let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
+        let cookie = legacy_login_cookie(COOKIE_LOGIN);
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::NewTimestamp,
+            VisitTimeStampCheck::NoTimestamp,
+        );
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_cookie_rejected_if_login_timestamp_needed() {
-    //     let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
-    //     let cookie = login_cookie(COOKIE_LOGIN, None, Some(SystemTime::now()));
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::NewTimestamp,
-    //         VisitTimeStampCheck::NoTimestamp,
-    //     );
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_cookie_rejected_if_login_timestamp_needed() {
+        let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
+        let cookie = login_cookie(COOKIE_LOGIN, None, Some(SystemTime::now()));
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::NewTimestamp,
+            VisitTimeStampCheck::NoTimestamp,
+        );
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_cookie_rejected_if_visit_timestamp_needed() {
-    //     let mut srv = create_identity_server(|c| c.visit_deadline(Duration::days(90))).await;
-    //     let cookie = login_cookie(COOKIE_LOGIN, Some(SystemTime::now()), None);
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::NoTimestamp,
-    //         VisitTimeStampCheck::NewTimestamp,
-    //     );
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_cookie_rejected_if_visit_timestamp_needed() {
+        let mut srv = create_identity_server(|c| c.visit_deadline(Duration::days(90))).await;
+        let cookie = login_cookie(COOKIE_LOGIN, Some(SystemTime::now()), None);
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::NoTimestamp,
+            VisitTimeStampCheck::NewTimestamp,
+        );
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_cookie_rejected_if_login_timestamp_too_old() {
-    //     let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
-    //     let cookie =
-    //         login_cookie(COOKIE_LOGIN, Some(SystemTime::now() - Duration::days(180)), None);
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::NewTimestamp,
-    //         VisitTimeStampCheck::NoTimestamp,
-    //     );
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_cookie_rejected_if_login_timestamp_too_old() {
+        let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
+        let cookie =
+            login_cookie(COOKIE_LOGIN, Some(SystemTime::now() - Duration::days(180)), None);
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::NewTimestamp,
+            VisitTimeStampCheck::NoTimestamp,
+        );
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_cookie_rejected_if_visit_timestamp_too_old() {
-    //     let mut srv = create_identity_server(|c| c.visit_deadline(Duration::days(90))).await;
-    //     let cookie =
-    //         login_cookie(COOKIE_LOGIN, None, Some(SystemTime::now() - Duration::days(180)));
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::NoTimestamp,
-    //         VisitTimeStampCheck::NewTimestamp,
-    //     );
-    //     assert_logged_in(resp, None).await;
-    // }
+    #[loony::test]
+    async fn test_identity_cookie_rejected_if_visit_timestamp_too_old() {
+        let mut srv = create_identity_server(|c| c.visit_deadline(Duration::days(90))).await;
+        let cookie =
+            login_cookie(COOKIE_LOGIN, None, Some(SystemTime::now() - Duration::days(180)));
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::NoTimestamp,
+            VisitTimeStampCheck::NewTimestamp,
+        );
+        assert_logged_in(resp, None).await;
+    }
 
-    // #[loony::test]
-    // async fn test_identity_cookie_not_updated_on_login_deadline() {
-    //     let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
-    //     let cookie = login_cookie(COOKIE_LOGIN, Some(SystemTime::now()), None);
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_no_login_cookie(&mut resp);
-    //     assert_logged_in(resp, Some(COOKIE_LOGIN)).await;
-    // }
+    #[loony::test]
+    async fn test_identity_cookie_not_updated_on_login_deadline() {
+        let mut srv = create_identity_server(|c| c.login_deadline(Duration::days(90))).await;
+        let cookie = login_cookie(COOKIE_LOGIN, Some(SystemTime::now()), None);
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_no_login_cookie(&mut resp);
+        assert_logged_in(resp, Some(COOKIE_LOGIN)).await;
+    }
 
-    // // https://github.com/actix/actix-web/issues/1263
-    // #[loony::test]
-    // async fn test_identity_cookie_updated_on_visit_deadline() {
-    //     let mut srv = create_identity_server(|c| {
-    //         c.visit_deadline(Duration::days(90)).login_deadline(Duration::days(90))
-    //     })
-    //     .await;
-    //     let timestamp = SystemTime::now() - Duration::days(1);
-    //     let cookie = login_cookie(COOKIE_LOGIN, Some(timestamp), Some(timestamp));
-    //     let mut resp = test::call_service(
-    //         &mut srv,
-    //         TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
-    //     )
-    //     .await;
-    //     assert_login_cookie(
-    //         &mut resp,
-    //         COOKIE_LOGIN,
-    //         LoginTimestampCheck::OldTimestamp(timestamp),
-    //         VisitTimeStampCheck::NewTimestamp,
-    //     );
-    //     assert_logged_in(resp, Some(COOKIE_LOGIN)).await;
-    // }
+    // https://github.com/actix/actix-web/issues/1263
+    #[loony::test]
+    async fn test_identity_cookie_updated_on_visit_deadline() {
+        let mut srv = create_identity_server(|c| {
+            c.visit_deadline(Duration::days(90)).login_deadline(Duration::days(90))
+        })
+        .await;
+        let timestamp = SystemTime::now() - Duration::days(1);
+        let cookie = login_cookie(COOKIE_LOGIN, Some(timestamp), Some(timestamp));
+        let mut resp = test::call_service(
+            &mut srv,
+            TestRequest::with_uri("/").cookie(cookie.clone()).to_request(),
+        )
+        .await;
+        assert_login_cookie(
+            &mut resp,
+            COOKIE_LOGIN,
+            LoginTimestampCheck::OldTimestamp(timestamp),
+            VisitTimeStampCheck::NewTimestamp,
+        );
+        assert_logged_in(resp, Some(COOKIE_LOGIN)).await;
+    }
 
     #[loony::test]
     async fn test_borrowed_mut_error() {
