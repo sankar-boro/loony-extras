@@ -716,6 +716,7 @@ impl Inner {
 ///
 /// The Cors struct contains the settings for CORS requests to be validated and
 /// for responses to be generated.
+#[derive(Clone)]
 pub struct CorsFactory {
     inner: Rc<Inner>,
 }

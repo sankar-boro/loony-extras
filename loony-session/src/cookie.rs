@@ -23,7 +23,7 @@ use std::task::{Context, Poll};
 
 use cookie::{Cookie, CookieJar, Key, SameSite};
 use derive_more::{Display, From};
-use futures::future::{ok, FutureExt, LocalBoxFuture, Ready};
+use futures::future::{FutureExt, LocalBoxFuture};
 use loony::http::header::{HeaderValue, SET_COOKIE};
 use loony::http::HttpMessage;
 use loony::service::{Service, Transform};
