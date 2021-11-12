@@ -9,14 +9,14 @@ homepage = "https://loony.rs"
 repository = "https://github.com/loony-rs/loony-extras.git"
 documentation = "https://docs.rs/loony-multipart/"
 license = "MIT"
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "loony_multipart"
 path = "src/lib.rs"
 
 [dependencies]
-loony = { git="https://github.com/sankar-boro/loony" }
+loony = { git="https://github.com/sankar-boro/loony", features = ["http"] }
 
 derive_more = "0.99.11"
 httparse = "1.3"
